@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eu me verei fardado - Centro Tático de Estudos</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            tactical: { 900: '#0b0f19', 800: '#111827', 700: '#1f2937', 600: '#374151' },
+            brand: { 500: '#f59e0b', 600: '#d97706', 700: '#b45309' },
+            accent: { 500: '#6366f1', 600: '#4f46e5' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .card-flip { perspective: 1000px; }
+    .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+    .card-flipped { transform: rotateY(180deg); }
+    .card-front, .card-back { backface-visibility: hidden; }
+    .card-back { transform: rotateY(180deg); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+
+    /* ====== ESTILOS ESPECÍFICOS DO MODO CLARO ====== */
+    html:not(.dark) body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    html:not(.dark) aside {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) .bg-tactical-900 {
+      background-color: #f8fafc !important;
+    }
+    html:not(.dark) .bg-tactical-800 {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+    }
+    html:not(.dark) .bg-tactical-700 {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #334155 !important;
+    }
+    html:not(.dark) .border-slate-800,
+    html:not(.dark) .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) .text-white,
+    html:not(.dark) .text-slate-100,
+    html:not(.dark) .text-slate-200 {
+      color: #0f172a !important;
+    }
+    html:not(.dark) .text-slate-300 {
+      color: #334155 !important;
+    }
+    html:not(.dark) .text-slate-400 {
+      color: #64748b !important;
+    }
+    html:not(.dark) .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+    /* Preserva texto de botões coloridos */
+    html:not(.dark) .bg-rose-600,
+    html:not(.dark) .bg-rose-500,
+    html:not(.dark) .bg-emerald-600,
+    html:not(.dark) .bg-emerald-500 {
+      color: #ffffff !important;
+    }
+    html:not(.dark) .bg-brand-600,
+    html:not(.dark) .bg-brand-500 {
+      color: #0f172a !important;
+    }
+    /* Modais, Inputs e Selects */
+    html:not(.dark) input,
+    html:not(.dark) select,
+    html:not(.dark) textarea {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) dialog {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #e2e8f0 !important;
+    }
+    /* Relógio Pomodoro no modo claro */
+    html:not(.dark) #timer-ring-bg {
+      stroke: #e2e8f0 !important;
+    }
+    /* Flashcards no modo claro */
+    html:not(.dark) .card-front {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) .card-back {
+      background-color: #f8fafc !important;
+      border-color: #f59e0b !important;
+    }
+    /* Banner Hero no modo claro */
+    html:not(.dark) .from-tactical-800 {
+      background: linear-gradient(to right, #ffffff, #fffbeb, #ffffff) !important;
+      border-color: #fde68a !important;
+    }
+  </style>
+</head>
+<body class="bg-tactical-900 text-slate-100 min-h-screen flex flex-col md:flex-row antialiased font-sans select-none transition-colors duration-200">
+
+  <!-- SIDEBAR TÁTICA -->
+  <aside class="w-full md:w-64 bg-tactical-800 border-r border-slate-800 flex flex-col justify-between shrink-0 p-4 transition-colors duration-200">
+    <div>
+      <!-- Logo do App -->
+      <div class="flex items-center gap-3 mb-6 px-2">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-400 flex items-center justify-center text-tactical-900 text-2xl font-black shadow-lg shadow-brand-500/20 shrink-0">
+          <i class="ph-bold ph-shield-star"></i>
+        </div>
+        <div class="overflow-hidden">
+          <h1 class="text-sm font-black tracking-wider uppercase text-slate-100 leading-tight">Eu me verei fardado</h1>
+          <span class="text-[10px] text-brand-500 font-mono font-semibold tracking-widest uppercase">Rumo à Posse</span>
+        </div>
+      </div>
+
+      <!-- Gamification / Nível -->
+      <div class="bg-tactical-900/80 border border-slate-800 rounded-xl p-3 mb-5">
+        <div class="flex items-center justify-between text-xs font-semibold mb-1">
+          <span class="text-brand-500 flex items-center gap-1"><i class="ph-fill ph-fire"></i> <span id="streak-count">0</span>d Seguidos</span>
+          <span class="text-slate-300" id="user-level">Nível 1</span>
+        </div>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-1.5">
+          <div id="xp-progress-bar" class="bg-brand-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+          <span id="xp-current">0 XP</span>
+          <span id="xp-next">100 XP</span>
+        </div>
+      </div>
+
+      <!-- Menu de Navegação -->
+      <nav class="space-y-1">
+        <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors bg-brand-600 text-tactical-900">
+          <i class="ph ph-chart-pie-slice text-lg"></i> Painel Geral
+        </button>
+        <button onclick="switchTab('cycle')" id="btn-cycle" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors text-slate-400 hover:text-slate-100 hover:bg-tactical-700">
+          <i class="ph ph-arrows-clockwise text-lg"></i> Ciclo de Estudos
+        </button>
+        <button onclick="switchTab('errors')" id="btn-errors" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors text-slate-400 hover:text-slate-100 hover:bg-tactical-700">
+          <span class="flex items-center gap-3"><i class="ph ph-notebook text-lg text-rose-500"></i> Caderno de Erros</span>
+          <span id="badge-errors-count" class="bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded text-[10px] font-mono">1</span>
+        </button>
+        <button onclick="switchTab('reviews')" id="btn-reviews" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors text-slate-400 hover:text-slate-100 hover:bg-tactical-700">
+          <span class="flex items-center gap-3"><i class="ph ph-clock-counter-clockwise text-lg text-amber-500"></i> Revisões (24h/7d)</span>
+          <span id="badge-reviews-due" class="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-mono">0</span>
+        </button>
+        <button onclick="switchTab('session')" id="btn-session" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors text-slate-400 hover:text-slate-100 hover:bg-tactical-700">
+          <i class="ph ph-note-pencil text-lg text-emerald-400"></i> Registrar Estudo
+        </button>
+        <button onclick="switchTab('timer')" id="btn-timer" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors text-slate-400 hover:text-slate-100 hover:bg-tactical-700">
+          <i class="ph ph-timer text-lg"></i> Pomodoro Tático
+        </button>
+        <button onclick="switchTab('flashcards')" id="btn-flashcards" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors text-slate-400 hover:text-slate-100 hover:bg-tactical-700">
+          <i class="ph ph-cards text-lg"></i> Flashcards / Lei
+        </button>
+      </nav>
+    </div>
+
+    <!-- RODAPÉ DA SIDEBAR: TEMA & BACKUP -->
+    <div class="border-t border-slate-800 pt-3 space-y-2">
+      <!-- Botão de Alternância de Tema -->
+      <button onclick="toggleTheme()" id="btn-theme-toggle" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider bg-tactical-700 hover:opacity-90 transition-all border border-slate-700/60">
+        <i class="ph-bold ph-sun text-amber-400 text-sm" id="theme-icon"></i>
+        <span id="theme-text">Modo Claro</span>
+      </button>
+
+      <div class="flex items-center gap-2">
+        <button onclick="exportData()" class="w-full text-xs text-slate-400 hover:text-slate-200 py-1.5 px-2 rounded hover:bg-tactical-700 flex items-center justify-center gap-1.5 font-medium border border-transparent hover:border-slate-700">
+          <i class="ph ph-download-simple"></i> Backup
+        </button>
+        <label class="w-full text-xs text-slate-400 hover:text-slate-200 py-1.5 px-2 rounded hover:bg-tactical-700 flex items-center justify-center gap-1.5 cursor-pointer font-medium border border-transparent hover:border-slate-700">
+          <i class="ph ph-upload-simple"></i> Importar
+          <input type="file" onchange="importData(event)" class="hidden" accept=".json"/>
+        </label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ÁREA PRINCIPAL -->
+  <main class="flex-1 p-4 md:p-8 overflow-y-auto max-h-screen">
+
+    <!-- 1. ABA: DASHBOARD -->
+    <section id="tab-dashboard" class="space-y-6">
+      <!-- AVISO DE REVISÕES DO DIA -->
+      <div id="banner-reviews-alert" class="hidden bg-amber-500/10 border border-amber-500/40 p-4 rounded-2xl flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i class="ph ph-warning-circle text-2xl text-amber-400"></i>
+          <div>
+            <div class="text-sm font-bold text-amber-400">Você possui revisões programadas para hoje!</div>
+            <span class="text-xs text-amber-300/80" id="banner-reviews-msg">Curva do Esquecimento (24h, 7d ou 30d).</span>
+          </div>
+        </div>
+        <button onclick="switchTab('reviews')" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-tactical-900 text-xs font-bold uppercase rounded-xl">
+          Ver Revisões
+        </button>
+      </div>
+
+      <!-- HERO CARD: O QUE ESTUDAR AGORA -->
+      <div class="bg-gradient-to-r from-tactical-800 via-tactical-800 to-amber-950/20 border border-slate-800 p-6 rounded-2xl relative overflow-hidden shadow-xl transition-all">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="space-y-1">
+            <span class="text-xs uppercase tracking-widest text-brand-500 font-bold flex items-center gap-1.5">
+              <i class="ph-fill ph-crosshair"></i> Próxima Matéria no Ciclo
+            </span>
+            <h2 class="text-3xl font-black text-white tracking-tight" id="dash-next-subject">Cadastre suas Matérias</h2>
+            <p class="text-sm text-slate-400" id="dash-next-details">Vá na aba "Ciclo de Estudos" para inserir as disciplinas do seu concurso.</p>
+          </div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <button onclick="startFocusOnCurrentStep()" class="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-tactical-900 font-black rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-brand-600/20 transition-transform active:scale-95">
+              <i class="ph-bold ph-play"></i> Iniciar Pomodoro
+            </button>
+            <button onclick="openSessionModal()" class="px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider flex items-center gap-2">
+              <i class="ph-bold ph-plus-circle"></i> Lançar Estudo
+            </button>
+            <button onclick="advanceCycleStep(true)" title="Pula para o próximo bloco" class="px-4 py-3 bg-tactical-700 hover:opacity-90 text-slate-200 border border-slate-600 rounded-xl font-bold text-xs">
+              <i class="ph-bold ph-arrow-right"></i> Próximo Bloco
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARDS DE METRICAS (ZERADOS) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-tactical-800 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+            <span>HORAS LÍQUIDAS</span>
+            <i class="ph ph-hourglass-simple-medium text-brand-500 text-base"></i>
+          </div>
+          <div class="text-2xl font-bold mt-2 text-slate-100" id="metric-total-hours">0.0h</div>
+          <span class="text-[11px] text-slate-500">Total acumulado</span>
+        </div>
+        <div class="bg-tactical-800 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+            <span>ASSERTIVIDADE</span>
+            <i class="ph ph-target text-emerald-400 text-base"></i>
+          </div>
+          <div class="text-2xl font-bold mt-2 text-emerald-400" id="metric-accuracy">0%</div>
+          <span class="text-[11px] text-slate-500" id="metric-questions-count">0 questões feitas</span>
+        </div>
+        <div class="bg-tactical-800 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+            <span>ERROS REGISTRADOS</span>
+            <i class="ph ph-notebook text-rose-400 text-base"></i>
+          </div>
+          <div class="text-2xl font-bold mt-2 text-rose-400" id="metric-errors-pending">1</div>
+          <span class="text-[11px] text-slate-500" id="metric-errors-solved">0 superados</span>
+        </div>
+        <div class="bg-tactical-800 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+            <span>REVISÕES FEITAS</span>
+            <i class="ph ph-check-circle text-accent-500 text-base"></i>
+          </div>
+          <div class="text-2xl font-bold mt-2 text-slate-100" id="metric-reviews-done">0</div>
+          <span class="text-[11px] text-slate-500">24h / 7d / 30d</span>
+        </div>
+      </div>
+
+      <!-- GRÁFICOS -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-tactical-800 border border-slate-800 p-5 rounded-2xl">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4 flex items-center gap-2">
+            <i class="ph ph-chart-bar text-brand-500"></i> Horas por Disciplina
+          </h3>
+          <div class="h-60">
+            <canvas id="hoursChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-tactical-800 border border-slate-800 p-5 rounded-2xl">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4 flex items-center gap-2">
+            <i class="ph ph-chart-donut text-emerald-400"></i> Desempenho de Questões (Acertos vs Erros)
+          </h3>
+          <div class="h-60 flex items-center justify-center">
+            <canvas id="accuracyChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ABA: CICLO DE ESTUDOS DO CONCURSO -->
+    <section id="tab-cycle" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-white uppercase">Ciclo de Estudos Personalizado</h2>
+          <p class="text-sm text-slate-400">Cadastre as matérias do seu edital para montar sua esteira de estudos.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openSubjectModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-tactical-900 font-bold text-xs uppercase tracking-wider rounded-xl flex items-center gap-2 shadow-lg shadow-brand-500/20">
+            <i class="ph-bold ph-plus"></i> Adicionar Disciplina
+          </button>
+          <button onclick="generateIntelligentCycle()" class="px-4 py-2.5 bg-tactical-700 hover:opacity-90 text-slate-200 font-bold text-xs uppercase rounded-xl flex items-center gap-2">
+            <i class="ph-bold ph-magic-wand"></i> Gerar Ciclo
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-tactical-800 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+        <div>
+          <div class="text-xs text-slate-300 font-bold uppercase">Sua Meta de Horas Semanais:</div>
+          <span class="text-[11px] text-slate-500">O ciclo dividirá essas horas proporcionalmente ao peso e sua dificuldade</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="number" id="input-weekly-hours" min="5" max="80" value="20" class="w-20 bg-tactical-900 border border-slate-700 rounded-lg px-3 py-1.5 text-center font-bold text-slate-100" onchange="updateWeeklyHours(this.value)" />
+          <span class="text-xs font-semibold text-slate-400">horas/sem</span>
+        </div>
+      </div>
+
+      <!-- ESTEIRA DO CICLO -->
+      <div class="bg-tactical-800 border border-slate-800 p-6 rounded-2xl space-y-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Esteira Sequencial de Blocos:</h3>
+        <div id="cycle-timeline-container" class="flex gap-3 overflow-x-auto pb-2 min-h-[90px] items-center">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- LISTA DE DISCIPLINAS -->
+      <div class="bg-tactical-800 border border-slate-800 rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+          <h3 class="font-bold text-xs uppercase tracking-wider text-slate-300">Disciplinas Cadastradas</h3>
+        </div>
+        <div id="subjects-table" class="divide-y divide-slate-800 text-sm">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ABA: CADERNO DE ERROS (1 EXEMPLO MANTIDO) -->
+    <section id="tab-errors" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-white uppercase">Caderno de Erros</h2>
+          <p class="text-sm text-slate-400">Mapeie suas fraquezas por tipo de erro e revise até dominar.</p>
+        </div>
+        <button onclick="openErrorModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl flex items-center gap-2">
+          <i class="ph-bold ph-plus"></i> Registrar Novo Erro
+        </button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="flex flex-wrap items-center gap-2 bg-tactical-800 p-3 rounded-xl border border-slate-800">
+        <span class="text-xs text-slate-400 font-bold uppercase mr-2"><i class="ph ph-funnel"></i> Filtrar:</span>
+        <button onclick="filterErrors('all')" id="err-filter-all" class="px-3 py-1 rounded-lg text-xs font-semibold bg-brand-600 text-tactical-900">Todos</button>
+        <button onclick="filterErrors('pendente')" id="err-filter-pendente" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:bg-tactical-700">Pendentes</button>
+        <button onclick="filterErrors('dominado')" id="err-filter-dominado" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:bg-tactical-700">Dominados</button>
+      </div>
+
+      <div id="errors-container" class="space-y-4">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- 4. ABA: CENTRAL DE REVISÕES -->
+    <section id="tab-reviews" class="space-y-6 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-white uppercase">Central de Revisões</h2>
+          <p class="text-sm text-slate-400">Controle da Curva do Esquecimento (24h, 7 dias e 30 dias).</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-tactical-800 border border-slate-800 rounded-2xl p-4 flex flex-col min-h-[450px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-amber-400 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Vencem Hoje / Atrasadas
+            </h4>
+            <span id="badge-rev-today" class="text-xs font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">0</span>
+          </div>
+          <div id="list-reviews-today" class="space-y-3 flex-1 overflow-y-auto"></div>
+        </div>
+
+        <div class="bg-tactical-800 border border-slate-800 rounded-2xl p-4 flex flex-col min-h-[450px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span> Próximos 7 Dias
+            </h4>
+            <span id="badge-rev-future" class="text-xs font-mono text-slate-400 bg-tactical-700 px-2 py-0.5 rounded">0</span>
+          </div>
+          <div id="list-reviews-future" class="space-y-3 flex-1 overflow-y-auto"></div>
+        </div>
+
+        <div class="bg-tactical-800 border border-slate-800 rounded-2xl p-4 flex flex-col min-h-[450px]">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Concluídas
+            </h4>
+            <span id="badge-rev-completed" class="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded">0</span>
+          </div>
+          <div id="list-reviews-completed" class="space-y-3 flex-1 overflow-y-auto opacity-80"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ABA: REGISTRO DE SESSÃO -->
+    <section id="tab-session" class="space-y-6 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-white uppercase">Diário de Estudos</h2>
+          <p class="text-sm text-slate-400">Lance suas horas líquidas e acertos em questões.</p>
+        </div>
+        <button onclick="openSessionModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl flex items-center gap-2">
+          <i class="ph-bold ph-plus"></i> Novo Lançamento
+        </button>
+      </div>
+
+      <div class="bg-tactical-800 border border-slate-800 rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-700">
+          <h3 class="font-bold text-xs uppercase tracking-wider text-slate-300">Histórico de Sessões</h3>
+        </div>
+        <div id="sessions-table" class="divide-y divide-slate-800 text-sm">
+          <!-- Renderizado via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. ABA: POMODORO -->
+    <section id="tab-timer" class="space-y-6 hidden">
+      <div class="max-w-xl mx-auto text-center space-y-6">
+        <div class="inline-flex p-1 bg-tactical-800 border border-slate-800 rounded-xl gap-1">
+          <button onclick="setTimerMode('pomodoro')" id="btn-mode-pomodoro" class="px-4 py-1.5 text-xs font-bold uppercase rounded-lg bg-brand-600 text-tactical-900">Pomodoro (25m)</button>
+          <button onclick="setTimerMode('block')" id="btn-mode-block" class="px-4 py-1.5 text-xs font-bold uppercase rounded-lg text-slate-400 hover:text-white">Bloco (60m)</button>
+          <button onclick="setTimerMode('shortBreak')" id="btn-mode-short" class="px-4 py-1.5 text-xs font-bold uppercase rounded-lg text-slate-400 hover:text-white">Pausa (5m)</button>
+        </div>
+
+        <div class="max-w-xs mx-auto">
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Disciplina em Foco:</label>
+          <select id="timer-subject-select" class="w-full bg-tactical-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"></select>
+        </div>
+
+        <div class="relative w-72 h-72 mx-auto flex items-center justify-center">
+          <svg class="w-full h-full -rotate-90">
+            <circle id="timer-ring-bg" cx="144" cy="144" r="120" stroke="#1f2937" stroke-width="12" fill="none" class="transition-colors duration-200" />
+            <circle id="timer-progress-ring" cx="144" cy="144" r="120" stroke="#f59e0b" stroke-width="12" fill="none" stroke-dasharray="753.98" stroke-dashoffset="0" stroke-linecap="round" class="transition-all duration-300" />
+          </svg>
+          <div class="absolute flex flex-col items-center">
+            <span id="timer-display" class="text-5xl font-mono font-black tracking-tight text-white">25:00</span>
+            <span id="timer-status-text" class="text-xs uppercase tracking-widest text-brand-500 mt-2 font-bold">Foco Tático</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-4">
+          <button onclick="toggleTimer()" id="timer-start-btn" class="px-8 py-3 bg-brand-600 hover:bg-brand-500 text-tactical-900 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-brand-500/20">
+            <span id="timer-btn-text">Iniciar Sessão</span>
+          </button>
+          <button onclick="resetTimer()" class="p-3 bg-tactical-800 hover:bg-tactical-700 border border-slate-700 text-slate-300 rounded-xl">
+            <i class="ph-bold ph-arrows-counter-clockwise text-lg"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. ABA: FLASHCARDS (1 EXEMPLO MANTIDO) -->
+    <section id="tab-flashcards" class="space-y-6 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-white uppercase">Flashcards / Memorização</h2>
+          <p class="text-sm text-slate-400">Artigos, jurisprudências e prazos de rápida memorização.</p>
+        </div>
+        <button onclick="openCardModal()" class="px-4 py-2 bg-brand-600 text-tactical-900 font-bold text-xs uppercase rounded-xl">
+          + Novo Flashcard
+        </button>
+      </div>
+
+      <div id="flashcard-deck-view" class="max-w-lg mx-auto space-y-6">
+        <div id="card-stage" class="card-flip w-full h-72 cursor-pointer" onclick="flipCard()">
+          <div id="card-inner" class="card-inner relative w-full h-full">
+            <div class="card-front absolute inset-0 bg-tactical-800 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between items-center text-center shadow-xl">
+              <span class="text-[11px] uppercase tracking-widest text-slate-400 font-bold" id="card-subject-tag">Disciplina</span>
+              <p class="text-lg font-semibold text-slate-100" id="card-front-text">Carregando...</p>
+              <span class="text-xs text-brand-500 flex items-center gap-1 font-semibold"><i class="ph ph-hand-tap"></i> Clique para virar o card</span>
+            </div>
+            <div class="card-back absolute inset-0 bg-tactical-700 border border-brand-500/50 rounded-2xl p-6 flex flex-col justify-between items-center text-center shadow-xl">
+              <span class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold">Fundamentação</span>
+              <p class="text-sm text-slate-200 overflow-y-auto" id="card-back-text">Resposta...</p>
+              <div class="flex gap-2 w-full pt-2" onclick="event.stopPropagation()">
+                <button onclick="answerCard('hard')" class="flex-1 py-2 text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg font-bold">Errei / Difícil</button>
+                <button onclick="answerCard('good')" class="flex-1 py-2 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg font-bold">Bom</button>
+                <button onclick="answerCard('easy')" class="flex-1 py-2 text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg font-bold">Fácil</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-center text-xs text-slate-400 font-mono" id="card-counter">0 cards</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODAIS ==================== -->
+
+  <!-- MODAL: REGISTRAR ERRO -->
+  <dialog id="modal-error" class="backdrop:bg-black/70 bg-tactical-800 border border-slate-700 p-6 rounded-2xl w-full max-w-xl text-slate-100">
+    <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+      <h3 class="text-base font-black uppercase text-rose-400 flex items-center gap-2">
+        <i class="ph-bold ph-warning-octagon"></i> Registrar Erro no Caderno
+      </h3>
+      <button onclick="document.getElementById('modal-error').close()" class="text-slate-400 hover:text-slate-200"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <form method="dialog" onsubmit="saveError(event)" class="space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Disciplina</label>
+          <select id="err-subject" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Banca / Ano (Opcional)</label>
+          <input id="err-banca" placeholder="Ex: Cebraspe / 2024" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Tópico do Edital</label>
+        <input id="err-topic" required placeholder="Ex: Inquérito Policial - Prazos e Características" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Diagnóstico (Por que errou?)</label>
+        <select id="err-reason" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 font-semibold text-rose-400">
+          <option value="pegadinha">⚠️ Pegadinha da Banca / Casca de Banana</option>
+          <option value="atencao">👀 Falta de Atenção / Leitura Apressada</option>
+          <option value="leiseca">📜 Desconhecimento de Letra da Lei</option>
+          <option value="teoria">🧠 Falta de Base Teórica / Doutrina</option>
+          <option value="jurisprudencia">⚖️ Jurisprudência / Informativo</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Enunciado / Ponto Onde Errou</label>
+        <textarea id="err-question" rows="2" required placeholder="Descreva o que a questão cobrava..." class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Gabarito e Correção Definitiva</label>
+        <textarea id="err-solution" rows="3" required placeholder="Artigo de lei, súmula ou explicação correta..." class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none"></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
+        <button type="button" onclick="document.getElementById('modal-error').close()" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-tactical-700">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-rose-600 hover:bg-rose-500 text-white">Salvar no Caderno</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: LANÇAR SESSÃO DE ESTUDO -->
+  <dialog id="modal-session" class="backdrop:bg-black/70 bg-tactical-800 border border-slate-700 p-6 rounded-2xl w-full max-w-lg text-slate-100">
+    <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+      <h3 class="text-base font-black uppercase text-emerald-400 flex items-center gap-2">
+        <i class="ph-bold ph-pencil-line"></i> Lançar Sessão de Estudo
+      </h3>
+      <button onclick="document.getElementById('modal-session').close()" class="text-slate-400 hover:text-slate-200"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <form method="dialog" onsubmit="saveSession(event)" class="space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Disciplina</label>
+          <select id="sess-subject" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Método</label>
+          <select id="sess-type" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 font-semibold">
+            <option value="Questões">🎯 Questões</option>
+            <option value="Teoria (PDF/Vídeo)">📚 Teoria (PDF/Vídeo)</option>
+            <option value="Lei Seca">📜 Lei Seca</option>
+            <option value="Revisão">🔄 Revisão Ativa</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Tópico Estudado</label>
+        <input id="sess-topic" required placeholder="Ex: Poder Constituinte Originário e Derivado" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none" />
+      </div>
+      <div class="grid grid-cols-3 gap-3 bg-tactical-900 p-3 rounded-xl border border-slate-700">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Tempo (min)</label>
+          <input type="number" id="sess-duration" value="60" min="5" required class="w-full bg-tactical-800 border border-slate-700 rounded p-1.5 text-center text-sm font-bold text-slate-100" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Feitas</label>
+          <input type="number" id="sess-questions-done" value="0" min="0" class="w-full bg-tactical-800 border border-slate-700 rounded p-1.5 text-center text-sm font-bold text-slate-100" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Acertos</label>
+          <input type="number" id="sess-questions-correct" value="0" min="0" class="w-full bg-tactical-800 border border-slate-700 rounded p-1.5 text-center text-sm font-bold text-emerald-400" />
+        </div>
+      </div>
+      <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl flex items-center gap-2">
+        <input type="checkbox" id="sess-auto-reviews" checked class="w-4 h-4 rounded text-brand-600 focus:ring-0 bg-tactical-900 border-slate-700" />
+        <label for="sess-auto-reviews" class="text-xs text-amber-500 font-semibold">Agendar automaticamente revisões de 24h, 7 dias e 30 dias para este tópico</label>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
+        <button type="button" onclick="document.getElementById('modal-session').close()" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-tactical-700">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-emerald-600 hover:bg-emerald-500 text-white">Salvar Estudo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: NOVA MATÉRIA -->
+  <dialog id="modal-subject" class="backdrop:bg-black/70 bg-tactical-800 border border-slate-700 p-6 rounded-2xl w-full max-w-md text-slate-100">
+    <h3 class="text-base font-black uppercase mb-3">Adicionar Disciplina do Edital</h3>
+    <form method="dialog" onsubmit="createSubject(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Nome da Matéria</label>
+        <input id="input-sub-name" required placeholder="Ex: Direito Penal" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none"/>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Peso no Edital</label>
+          <select id="input-sub-weight" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100">
+            <option value="1">1 - Regular</option>
+            <option value="2">2 - Médio</option>
+            <option value="3" selected>3 - Muito Alto</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Sua Dificuldade</label>
+          <select id="input-sub-diff" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100">
+            <option value="1">1 - Fácil</option>
+            <option value="2" selected>2 - Médio</option>
+            <option value="3">3 - Difícil</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
+        <button type="button" onclick="document.getElementById('modal-subject').close()" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-tactical-700">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-brand-600 text-tactical-900">Salvar Matéria</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: NOVO FLASHCARD -->
+  <dialog id="modal-card" class="backdrop:bg-black/70 bg-tactical-800 border border-slate-700 p-6 rounded-2xl w-full max-w-md text-slate-100">
+    <h3 class="text-base font-black uppercase mb-3">Novo Flashcard</h3>
+    <form method="dialog" onsubmit="createFlashcard(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Disciplina</label>
+        <select id="input-card-subject" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100"></select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Frente (Pergunta / Gatilho)</label>
+        <textarea id="input-card-front" rows="2" required placeholder="Ex: Qual o prazo da prisão temporária em crimes hediondos?" class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Verso (Resposta / Artigo)</label>
+        <textarea id="input-card-back" rows="3" required placeholder="Ex: 30 dias, prorrogável por igual período em caso de extrema necessidade." class="w-full bg-tactical-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100 outline-none"></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
+        <button type="button" onclick="document.getElementById('modal-card').close()" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-tactical-700">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold uppercase bg-brand-600 text-tactical-900">Salvar Card</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- JAVASCRIPT DO SISTEMA -->
+  <script>
+    const STORAGE_KEY = 'EU_ME_VEREI_FARDADO_V1';
+    const THEME_KEY = 'EU_ME_VEREI_FARDADO_THEME';
+
+    // ESTADO INICIAL
+    let state = {
+      user: { xp: 0, streak: 0, lastStudyDate: null },
+      weeklyHours: 20,
+      cycleIndex: 0,
+      completedCycleBlocks: 0,
+      subjects: [],
+      cycleQueue: [],
+      sessions: [],
+      reviews: [],
+      errors: [
+        {
+          id: 'exemplo_erro_1',
+          date: new Date().toISOString().split('T')[0],
+          subjectId: 'demo',
+          banca: 'Cebraspe / Carreira Policial',
+          topic: 'Inquérito Policial - Vedações à Autoridade Policial',
+          reason: 'leiseca',
+          question: 'O delegado de polícia pode determinar o arquivamento do inquérito policial se constatar atipicidade evidente da conduta?',
+          solution: 'NÃO! Conforme o art. 17 do CPP: "A autoridade policial não poderá mandar arquivar autos de inquérito". O arquivamento é ato complexo dependente do Poder Judiciário.',
+          status: 'pendente'
+        }
+      ],
+      flashcards: [
+        {
+          id: 'exemplo_fc_1',
+          subjectId: 'demo',
+          front: 'Quais são as atribuições constitucionais da Polícia Rodoviária Federal (art. 144, §2º da CF)?',
+          back: 'Destina-se, na forma da lei, ao PATRULHAMENTO OSTENSIVO das rodovias federais.'
+        }
+      ]
+    };
+
+    // --- CONTROLE DE TEMA (CLARO / ESCURO) ---
+    function initTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+      applyTheme(savedTheme);
+    }
+
+    function applyTheme(theme) {
+      const html = document.documentElement;
+      const themeText = document.getElementById('theme-text');
+      const themeIcon = document.getElementById('theme-icon');
+
+      if (theme === 'light') {
+        html.classList.remove('dark');
+        themeText.innerText = 'Modo Escuro';
+        themeIcon.className = 'ph-bold ph-moon text-indigo-400 text-sm';
+      } else {
+        html.classList.add('dark');
+        themeText.innerText = 'Modo Claro';
+        themeIcon.className = 'ph-bold ph-sun text-amber-400 text-sm';
+      }
+      localStorage.setItem(THEME_KEY, theme);
+      if (hoursChartInstance || accuracyChartInstance) updateCharts();
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      applyTheme(isDark ? 'light' : 'dark');
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try { state = JSON.parse(saved); } catch(e) { console.error(e); }
+      }
+      if (state.subjects.length > 0 && (!state.cycleQueue || state.cycleQueue.length === 0)) {
+        buildCycleAlgorithm();
+      }
+      checkStreak();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderDashboard();
+    }
+
+    // --- ALGORITMO DO CICLO ---
+    function buildCycleAlgorithm() {
+      if (state.subjects.length === 0) {
+        state.cycleQueue = [];
+        return;
+      }
+      let totalScore = 0;
+      const subs = state.subjects.map(s => {
+        const score = (s.weight || 2) * (s.difficulty || 2);
+        totalScore += score;
+        return { ...s, score };
+      });
+      const totalWeeklyMinutes = state.weeklyHours * 60;
+      let pool = [];
+      subs.forEach(s => {
+        const mins = (s.score / totalScore) * totalWeeklyMinutes;
+        const blocks = Math.max(1, Math.round(mins / 60));
+        for (let i = 0; i < blocks; i++) {
+          pool.push({ subjectId: s.id, duration: 60, name: s.name, color: s.color });
+        }
+      });
+
+      const buckets = {};
+      pool.forEach(b => { (buckets[b.subjectId] = buckets[b.subjectId] || []).push(b); });
+      const keys = Object.keys(buckets).sort((a,b) => buckets[b].length - buckets[a].length);
+      const interleaved = [];
+      while (interleaved.length < pool.length) {
+        keys.forEach(k => { if (buckets[k].length) interleaved.push(buckets[k].shift()); });
+      }
+      state.cycleQueue = interleaved;
+      if (state.cycleIndex >= state.cycleQueue.length) state.cycleIndex = 0;
+      saveState();
+    }
+
+    function generateIntelligentCycle() {
+      if (state.subjects.length === 0) {
+        alert('Adicione ao menos uma disciplina antes de gerar o ciclo!');
+        return;
+      }
+      buildCycleAlgorithm();
+      renderCycleView();
+      renderDashboard();
+      confetti({ particleCount: 50, spread: 60 });
+      alert('⚡ Ciclo de Estudos gerado e balanceado com sucesso!');
+    }
+
+    function updateWeeklyHours(v) {
+      state.weeklyHours = Math.max(5, Number(v) || 20);
+      buildCycleAlgorithm();
+      renderCycleView();
+      renderDashboard();
+    }
+
+    function getCurrentCycleBlock() {
+      if (!state.cycleQueue || !state.cycleQueue.length) return null;
+      return state.cycleQueue[state.cycleIndex % state.cycleQueue.length];
+    }
+
+    function advanceCycleStep(reward = false) {
+      if (!state.cycleQueue.length) return;
+      if (reward) addXP(15);
+      state.cycleIndex = (state.cycleIndex + 1) % state.cycleQueue.length;
+      saveState();
+      renderDashboard();
+      renderCycleView();
+    }
+
+    function setCyclePointer(idx) {
+      state.cycleIndex = idx;
+      saveState();
+      renderDashboard();
+      renderCycleView();
+    }
+
+    function startFocusOnCurrentStep() {
+      const b = getCurrentCycleBlock();
+      if (!b) {
+        alert('Cadastre disciplinas na aba "Ciclo de Estudos" para iniciar o foco!');
+        switchTab('cycle');
+        return;
+      }
+      switchTab('timer');
+      document.getElementById('timer-subject-select').value = b.subjectId;
+    }
+
+    // --- CADERNO DE ERROS ---
+    let currentErrorFilter = 'all';
+
+    function filterErrors(filter) {
+      currentErrorFilter = filter;
+      ['all', 'pendente', 'dominado'].forEach(f => {
+        const btn = document.getElementById(`err-filter-${f}`);
+        btn.className = f === filter ? 'px-3 py-1 rounded-lg text-xs font-semibold bg-brand-600 text-tactical-900' : 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:bg-tactical-700';
+      });
+      renderErrors();
+    }
+
+    function renderErrors() {
+      const container = document.getElementById('errors-container');
+      container.innerHTML = '';
+
+      let list = state.errors;
+      if (currentErrorFilter !== 'all') {
+        list = list.filter(e => e.status === currentErrorFilter);
+      }
+
+      const pendingCount = state.errors.filter(e => e.status === 'pendente').length;
+      document.getElementById('badge-errors-count').innerText = pendingCount;
+      document.getElementById('metric-errors-pending').innerText = pendingCount;
+      document.getElementById('metric-errors-solved').innerText = `${state.errors.length - pendingCount} superados`;
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="bg-tactical-800 border border-slate-800 p-8 rounded-2xl text-center text-slate-400 text-sm">Nenhum erro registrado neste filtro. Excelente!</div>`;
+        return;
+      }
+
+      const reasonLabels = {
+        pegadinha: { label: 'Pegadinha de Banca', color: 'bg-amber-500/20 text-amber-500' },
+        atencao: { label: 'Falta de Atenção', color: 'bg-yellow-500/20 text-yellow-500' },
+        leiseca: { label: 'Letra da Lei', color: 'bg-blue-500/20 text-blue-500' },
+        teoria: { label: 'Base Teórica', color: 'bg-purple-500/20 text-purple-500' },
+        jurisprudencia: { label: 'Jurisprudência', color: 'bg-emerald-500/20 text-emerald-500' }
+      };
+
+      list.forEach(err => {
+        const sub = state.subjects.find(s => s.id === err.subjectId) || { name: 'Exemplo / Geral', color: '#f59e0b' };
+        const reasonBadge = reasonLabels[err.reason] || { label: 'Erro', color: 'bg-slate-700 text-slate-200' };
+        const isPending = err.status === 'pendente';
+
+        const card = document.createElement('div');
+        card.className = `p-5 rounded-2xl border transition-all ${
+          isPending ? 'bg-tactical-800 border-slate-800 hover:border-rose-500/40' : 'bg-tactical-800/60 border-emerald-900/40 opacity-75'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background-color: ${sub.color}20; color: ${sub.color}">${sub.name}</span>
+              <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded ${reasonBadge.color}">${reasonBadge.label}</span>
+              ${err.banca ? `<span class="text-xs text-slate-400 font-mono">(${err.banca})</span>` : ''}
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="toggleErrorStatus('${err.id}')" class="text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${
+                isPending ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border-emerald-500/30' : 'bg-amber-500/10 text-amber-500 border-amber-500/30'
+              }">
+                <i class="ph-bold ${isPending ? 'ph-check' : 'ph-arrow-counter-clockwise'}"></i> ${isPending ? 'Marcar como Dominado' : 'Reabrir Erro'}
+              </button>
+              <button onclick="deleteError('${err.id}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="ph ph-trash"></i></button>
+            </div>
+          </div>
+          <h4 class="font-bold text-sm text-slate-200 mb-1">Tópico: ${err.topic}</h4>
+          <p class="text-sm text-slate-300 bg-tactical-900/60 p-3 rounded-xl border border-slate-700/50 mb-3"><strong class="text-rose-400">Ponto Cego:</strong> ${err.question}</p>
+          <div class="text-sm text-emerald-400/90 bg-emerald-950/20 border border-emerald-800/30 p-3 rounded-xl">
+            <strong class="text-emerald-500 flex items-center gap-1.5 mb-1"><i class="ph-bold ph-shield-check"></i> Correção / Gabarito Definitivo:</strong>
+            ${err.solution}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleErrorStatus(id) {
+      const err = state.errors.find(e => e.id === id);
+      if (err) {
+        err.status = err.status === 'pendente' ? 'dominado' : 'pendente';
+        if (err.status === 'dominado') {
+          addXP(25);
+          confetti({ particleCount: 40 });
+        }
+        saveState();
+        renderErrors();
+      }
+    }
+
+    function deleteError(id) {
+      if (confirm('Deseja excluir este registro de erro?')) {
+        state.errors = state.errors.filter(e => e.id !== id);
+        saveState();
+        renderErrors();
+      }
+    }
+
+    function openErrorModal() {
+      const sel = document.getElementById('err-subject');
+      if (state.subjects.length === 0) {
+        sel.innerHTML = '<option value="demo">Geral / Sem Disciplina</option>';
+      } else {
+        sel.innerHTML = state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      }
+      document.getElementById('modal-error').showModal();
+    }
+
+    function saveError(e) {
+      const subjectId = document.getElementById('err-subject').value;
+      const banca = document.getElementById('err-banca').value;
+      const topic = document.getElementById('err-topic').value;
+      const reason = document.getElementById('err-reason').value;
+      const question = document.getElementById('err-question').value;
+      const solution = document.getElementById('err-solution').value;
+
+      state.errors.unshift({
+        id: 'e_' + Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        subjectId, banca, topic, reason, question, solution,
+        status: 'pendente'
+      });
+
+      addXP(10);
+      saveState();
+      renderErrors();
+      document.getElementById('modal-error').close();
+      document.getElementById('err-topic').value = '';
+      document.getElementById('err-question').value = '';
+      document.getElementById('err-solution').value = '';
+    }
+
+    // --- REVISÕES (CURVA 24H / 7D / 30D) ---
+    function checkDueReviews() {
+      const today = new Date().toISOString().split('T')[0];
+      const dueCount = state.reviews.filter(r => !r.completed && r.dateScheduled <= today).length;
+      document.getElementById('badge-reviews-due').innerText = dueCount;
+
+      const banner = document.getElementById('banner-reviews-alert');
+      if (dueCount > 0) {
+        banner.classList.remove('hidden');
+        document.getElementById('banner-reviews-msg').innerText = `Você possui ${dueCount} tópico(s) da Curva do Esquecimento para revisar agora.`;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function renderReviews() {
+      checkDueReviews();
+      const today = new Date().toISOString().split('T')[0];
+
+      const listToday = document.getElementById('list-reviews-today');
+      const listFuture = document.getElementById('list-reviews-future');
+      const listCompleted = document.getElementById('list-reviews-completed');
+
+      listToday.innerHTML = ''; listFuture.innerHTML = ''; listCompleted.innerHTML = '';
+
+      let cToday = 0, cFuture = 0, cDone = 0;
+
+      state.reviews.forEach(rev => {
+        const sub = state.subjects.find(s => s.id === rev.subjectId) || { name: 'Geral', color: '#6366f1' };
+        const card = document.createElement('div');
+        card.className = 'bg-tactical-900 border border-slate-700/80 p-3 rounded-xl flex flex-col gap-2 shadow-sm';
+
+        if (rev.completed) {
+          cDone++;
+          card.innerHTML = `
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-400">${sub.name}</span>
+              <span class="font-mono text-emerald-500 text-[10px] bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">Revisado (${rev.stage})</span>
+            </div>
+            <p class="text-xs text-slate-300 font-medium">${rev.topic}</p>
+          `;
+          listCompleted.appendChild(card);
+        } else if (rev.dateScheduled <= today) {
+          cToday++;
+          card.innerHTML = `
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold" style="color: ${sub.color}">${sub.name}</span>
+              <span class="font-mono text-amber-500 font-bold bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">${rev.stage}</span>
+            </div>
+            <p class="text-xs text-slate-200 font-semibold">${rev.topic}</p>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+              <span class="text-[10px] text-amber-500 font-mono">Agendado: ${rev.dateScheduled}</span>
+              <button onclick="markReviewCompleted('${rev.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold flex items-center gap-1">
+                <i class="ph-bold ph-check"></i> Feito (+20 XP)
+              </button>
+            </div>
+          `;
+          listToday.appendChild(card);
+        } else {
+          cFuture++;
+          card.innerHTML = `
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold" style="color: ${sub.color}">${sub.name}</span>
+              <span class="font-mono text-indigo-400 text-[10px] bg-indigo-400/10 px-1.5 py-0.5 rounded">${rev.stage}</span>
+            </div>
+            <p class="text-xs text-slate-300 font-medium">${rev.topic}</p>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">Data: ${rev.dateScheduled}</div>
+          `;
+          listFuture.appendChild(card);
+        }
+      });
+
+      document.getElementById('badge-rev-today').innerText = cToday;
+      document.getElementById('badge-rev-future').innerText = cFuture;
+      document.getElementById('badge-rev-completed').innerText = cDone;
+      document.getElementById('metric-reviews-done').innerText = cDone;
+    }
+
+    function markReviewCompleted(id) {
+      const rev = state.reviews.find(r => r.id === id);
+      if (rev) {
+        rev.completed = true;
+        addXP(20);
+        confetti({ particleCount: 30 });
+        saveState();
+        renderReviews();
+      }
+    }
+
+    // --- REGISTRO DE SESSÃO / DIÁRIO ---
+    function openSessionModal() {
+      const sel = document.getElementById('sess-subject');
+      if (state.subjects.length === 0) {
+        alert('Cadastre primeiro ao menos uma disciplina na aba "Ciclo de Estudos"!');
+        switchTab('cycle');
+        return;
+      }
+      sel.innerHTML = state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      document.getElementById('modal-session').showModal();
+    }
+
+    function saveSession(e) {
+      const subjectId = document.getElementById('sess-subject').value;
+      const type = document.getElementById('sess-type').value;
+      const topic = document.getElementById('sess-topic').value;
+      const duration = Number(document.getElementById('sess-duration').value) || 60;
+      const qDone = Number(document.getElementById('sess-questions-done').value) || 0;
+      const qCorrect = Number(document.getElementById('sess-questions-correct').value) || 0;
+      const autoRev = document.getElementById('sess-auto-reviews').checked;
+
+      const sub = state.subjects.find(s => s.id === subjectId);
+      if (sub) sub.studiedMinutes += duration;
+
+      state.sessions.unshift({
+        id: 'sess_' + Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        subjectId, type, topic,
+        durationMinutes: duration,
+        questionsDone: qDone,
+        questionsCorrect: qCorrect
+      });
+
+      if (autoRev) {
+        const createDate = (days) => {
+          const d = new Date();
+          d.setDate(d.getDate() + days);
+          return d.toISOString().split('T')[0];
+        };
+        state.reviews.unshift({ id: 'rev_' + Date.now() + '_1', dateScheduled: createDate(1), subjectId, topic, stage: '24h', completed: false });
+        state.reviews.unshift({ id: 'rev_' + Date.now() + '_7', dateScheduled: createDate(7), subjectId, topic, stage: '7 dias', completed: false });
+        state.reviews.unshift({ id: 'rev_' + Date.now() + '_30', dateScheduled: createDate(30), subjectId, topic, stage: '30 dias', completed: false });
+      }
+
+      addXP(30);
+      confetti({ particleCount: 50, spread: 60 });
+      saveState();
+      renderSessions();
+      renderReviews();
+      renderDashboard();
+      updateCharts();
+      document.getElementById('modal-session').close();
+      document.getElementById('sess-topic').value = '';
+    }
+
+    function renderSessions() {
+      const table = document.getElementById('sessions-table');
+      table.innerHTML = '';
+
+      if (state.sessions.length === 0) {
+        table.innerHTML = `<div class="p-6 text-center text-slate-500 text-sm">Nenhum estudo registrado ainda. Clique em "Novo Lançamento".</div>`;
+        return;
+      }
+
+      state.sessions.forEach(sess => {
+        const sub = state.subjects.find(s => s.id === sess.subjectId) || { name: 'Geral', color: '#6366f1' };
+        const row = document.createElement('div');
+        row.className = 'px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3';
+        
+        let questionsHtml = '';
+        if (sess.questionsDone > 0) {
+          const pct = Math.round((sess.questionsCorrect / sess.questionsDone) * 100);
+          questionsHtml = `<span class="text-xs font-mono font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">${sess.questionsCorrect}/${sess.questionsDone} (${pct}%)</span>`;
+        }
+
+        row.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded" style="background-color: ${sub.color}20; color: ${sub.color}">${sub.name}</span>
+              <span class="text-xs text-slate-400 font-mono">${sess.type}</span>
+              <span class="text-xs text-slate-500">• ${sess.date}</span>
+            </div>
+            <h5 class="font-bold text-slate-200 text-sm">${sess.topic}</h5>
+          </div>
+          <div class="flex items-center gap-4">
+            ${questionsHtml}
+            <span class="text-xs font-mono text-slate-300 font-bold">${sess.durationMinutes} min</span>
+            <button onclick="deleteSession('${sess.id}')" class="text-slate-500 hover:text-rose-400 text-xs"><i class="ph ph-trash"></i></button>
+          </div>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function deleteSession(id) {
+      if (confirm('Deseja excluir este registro?')) {
+        state.sessions = state.sessions.filter(s => s.id !== id);
+        saveState();
+        renderSessions();
+        renderDashboard();
+        updateCharts();
+      }
+    }
+
+    // --- DASHBOARD & GRÁFICOS (ADAPTADOS PARA MODO CLARO/ESCURO) ---
+    let hoursChartInstance = null;
+    let accuracyChartInstance = null;
+
+    function renderDashboard() {
+      const cur = getCurrentCycleBlock();
+      if (cur) {
+        document.getElementById('dash-next-subject').innerText = cur.name;
+        document.getElementById('dash-next-details').innerText = `Bloco ${(state.cycleIndex % state.cycleQueue.length) + 1} de ${state.cycleQueue.length} • Meta: ${cur.duration} min`;
+      } else {
+        document.getElementById('dash-next-subject').innerText = state.subjects.length === 0 ? 'Cadastre suas Matérias' : 'Ciclo Não Gerado';
+        document.getElementById('dash-next-details').innerText = state.subjects.length === 0 ? 'Vá na aba "Ciclo de Estudos" para inserir as disciplinas do seu edital.' : 'Clique em "Gerar Ciclo" na aba Ciclo de Estudos.';
+      }
+
+      let totalMinutes = 0;
+      state.subjects.forEach(s => totalMinutes += s.studiedMinutes);
+      document.getElementById('metric-total-hours').innerText = `${(totalMinutes / 60).toFixed(1)}h`;
+
+      let totalQ = 0, totalCorrect = 0;
+      state.sessions.forEach(s => {
+        totalQ += s.questionsDone || 0;
+        totalCorrect += s.questionsCorrect || 0;
+      });
+      const acc = totalQ > 0 ? Math.round((totalCorrect / totalQ) * 100) : 0;
+      document.getElementById('metric-accuracy').innerText = `${acc}%`;
+      document.getElementById('metric-questions-count').innerText = `${totalQ} questões feitas`;
+
+      checkDueReviews();
+      updateLevelUI();
+    }
+
+    function updateCharts() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+      const gridColor = isDark ? '#1f2937' : '#e2e8f0';
+
+      const ctxH = document.getElementById('hoursChart').getContext('2d');
+      const labels = state.subjects.map(s => s.name);
+      const hours = state.subjects.map(s => (s.studiedMinutes / 60).toFixed(1));
+      const colors = state.subjects.map(s => s.color);
+
+      if (hoursChartInstance) hoursChartInstance.destroy();
+      hoursChartInstance = new Chart(ctxH, {
+        type: 'bar',
+        data: {
+          labels: labels.length ? labels : ['Sem dados'],
+          datasets: [{ data: hours.length ? hours : [0], backgroundColor: colors.length ? colors : ['#374151'], borderRadius: 6 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor } }
+          }
+        }
+      });
+
+      let totalQ = 0, totalCorrect = 0;
+      state.sessions.forEach(s => {
+        totalQ += s.questionsDone || 0;
+        totalCorrect += s.questionsCorrect || 0;
+      });
+      const errorsCount = totalQ - totalCorrect;
+
+      const ctxA = document.getElementById('accuracyChart').getContext('2d');
+      if (accuracyChartInstance) accuracyChartInstance.destroy();
+      accuracyChartInstance = new Chart(ctxA, {
+        type: 'doughnut',
+        data: {
+          labels: ['Acertos', 'Erros'],
+          datasets: [{
+            data: totalQ > 0 ? [totalCorrect, errorsCount] : [1, 0],
+            backgroundColor: totalQ > 0 ? ['#10b981', '#f43f5e'] : (isDark ? ['#374151', '#1f2937'] : ['#e2e8f0', '#cbd5e1']),
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    // --- CICLO & TABELA DE MATÉRIAS ---
+    function renderCycleView() {
+      const container = document.getElementById('cycle-timeline-container');
+      const table = document.getElementById('subjects-table');
+      container.innerHTML = ''; table.innerHTML = '';
+
+      if (state.cycleQueue.length === 0) {
+        container.innerHTML = `<span class="text-slate-500 text-xs italic">Nenhum bloco gerado. Cadastre suas disciplinas e clique em "Gerar Ciclo".</span>`;
+      } else {
+        state.cycleQueue.forEach((block, idx) => {
+          const isCurrent = idx === (state.cycleIndex % state.cycleQueue.length);
+          const el = document.createElement('div');
+          el.onclick = () => setCyclePointer(idx);
+          el.className = `flex-shrink-0 cursor-pointer p-4 rounded-xl border transition-all ${
+            isCurrent ? 'bg-brand-600/20 border-brand-500 scale-105 ring-2 ring-brand-500/50' : 'bg-tactical-800 border-slate-700 opacity-60 hover:opacity-100'
+          }`;
+          el.innerHTML = `
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${block.color}"></span>
+              <span class="text-[10px] font-mono font-bold text-slate-400">BLOCO ${idx + 1}</span>
+              ${isCurrent ? '<span class="text-[9px] bg-brand-500 text-tactical-900 font-black px-1 rounded ml-auto">AGORA</span>' : ''}
+            </div>
+            <div class="font-bold text-xs text-slate-100 truncate max-w-[130px]">${block.name}</div>
+            <div class="text-[11px] text-slate-400">${block.duration} min</div>
+          `;
+          container.appendChild(el);
+        });
+      }
+
+      if (state.subjects.length === 0) {
+        table.innerHTML = `<div class="p-6 text-center text-slate-500 text-sm">Nenhuma disciplina adicionada ainda. Clique em "Adicionar Disciplina" acima.</div>`;
+      } else {
+        state.subjects.forEach(sub => {
+          const row = document.createElement('div');
+          row.className = 'px-6 py-4 flex items-center justify-between';
+          row.innerHTML = `
+            <div class="flex items-center gap-3">
+              <span class="w-3.5 h-3.5 rounded-full shrink-0" style="background-color: ${sub.color}"></span>
+              <div>
+                <div class="font-bold text-sm text-slate-200">${sub.name}</div>
+                <span class="text-xs text-slate-400">Peso: ${sub.weight} | Dificuldade: ${sub.difficulty}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-xs font-mono text-slate-300 font-bold">${(sub.studiedMinutes / 60).toFixed(1)}h</span>
+              <button onclick="deleteSubject('${sub.id}')" class="text-slate-500 hover:text-rose-400 text-xs"><i class="ph ph-trash"></i></button>
+            </div>
+          `;
+          table.appendChild(row);
+        });
+      }
+
+      document.getElementById('input-weekly-hours').value = state.weeklyHours;
+      populateTimerSelect();
+    }
+
+    function openSubjectModal() { document.getElementById('modal-subject').showModal(); }
+    function createSubject(e) {
+      const name = document.getElementById('input-sub-name').value;
+      const weight = Number(document.getElementById('input-sub-weight').value);
+      const difficulty = Number(document.getElementById('input-sub-diff').value);
+      const colors = ['#f59e0b', '#6366f1', '#10b981', '#ec4899', '#06b6d4', '#8b5cf6', '#3b82f6'];
+      const color = colors[state.subjects.length % colors.length];
+
+      state.subjects.push({ id: 'sub_' + Date.now(), name, weight, difficulty, studiedMinutes: 0, color });
+      buildCycleAlgorithm();
+      renderCycleView();
+      renderDashboard();
+      updateCharts();
+      document.getElementById('modal-subject').close();
+      document.getElementById('input-sub-name').value = '';
+    }
+
+    function deleteSubject(id) {
+      if (confirm('Deseja excluir esta disciplina? O ciclo será recalculado.')) {
+        state.subjects = state.subjects.filter(s => s.id !== id);
+        buildCycleAlgorithm();
+        renderCycleView();
+        renderDashboard();
+        updateCharts();
+      }
+    }
+
+    // --- POMODORO ---
+    let timerDuration = 25 * 60, timerRemaining = 25 * 60, timerInterval = null, timerRunning = false, currentTimerMode = 'pomodoro';
+
+    function setTimerMode(mode) {
+      if (timerRunning) toggleTimer();
+      currentTimerMode = mode;
+      const modes = { pomodoro: 25 * 60, block: 60 * 60, shortBreak: 5 * 60 };
+      timerDuration = modes[mode];
+      timerRemaining = modes[mode];
+
+      ['pomodoro', 'block', 'short'].forEach(m => {
+        const btn = document.getElementById(`btn-mode-${m}`);
+        if (btn) btn.className = 'px-4 py-1.5 text-xs font-bold uppercase rounded-lg text-slate-400 hover:text-white';
+      });
+      const active = mode === 'pomodoro' ? 'pomodoro' : (mode === 'block' ? 'block' : 'short');
+      document.getElementById(`btn-mode-${active}`).className = 'px-4 py-1.5 text-xs font-bold uppercase rounded-lg bg-brand-600 text-tactical-900';
+
+      updateTimerDisplay();
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timer-btn-text').innerText = 'Continuar';
+      } else {
+        timerRunning = true;
+        document.getElementById('timer-btn-text').innerText = 'Pausar';
+        playBeep(440, 0.1);
+        timerInterval = setInterval(() => {
+          if (timerRemaining > 0) {
+            timerRemaining--;
+            updateTimerDisplay();
+          } else {
+            completeTimer();
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      if (timerRunning) toggleTimer();
+      timerRemaining = timerDuration;
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerRemaining / 60), s = timerRemaining % 60;
+      document.getElementById('timer-display').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      const circ = 2 * Math.PI * 120;
+      document.getElementById('timer-progress-ring').style.strokeDashoffset = circ - ((timerRemaining / timerDuration) * circ);
+    }
+
+    function completeTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      playBeep(880, 0.5);
+
+      if (currentTimerMode === 'pomodoro' || currentTimerMode === 'block') {
+        const subId = document.getElementById('timer-subject-select').value;
+        const mins = Math.round(timerDuration / 60);
+        const sub = state.subjects.find(s => s.id === subId);
+        if (sub) sub.studiedMinutes += mins;
+
+        advanceCycleStep(false);
+        addXP(30);
+        confetti({ particleCount: 70 });
+        alert(`Sessão finalizada! +${mins}min registrados no ciclo.`);
+      }
+      setTimerMode('shortBreak');
+      saveState();
+      updateCharts();
+    }
+
+    function populateTimerSelect() {
+      const sel = document.getElementById('timer-subject-select');
+      if (state.subjects.length === 0) {
+        sel.innerHTML = '<option value="">Nenhuma disciplina cadastrada</option>';
+        return;
+      }
+      sel.innerHTML = state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      const cur = getCurrentCycleBlock();
+      if (cur) sel.value = cur.subjectId;
+    }
+
+    // --- FLASHCARDS ---
+    let currentCardIdx = 0, cardFlipped = false;
+    function setupFlashcards() {
+      cardFlipped = false;
+      document.getElementById('card-inner').classList.remove('card-flipped');
+      if (state.flashcards.length === 0) {
+        document.getElementById('card-front-text').innerText = 'Nenhum flashcard cadastrado.';
+        document.getElementById('card-back-text').innerText = 'Clique em "+ Novo Flashcard" para começar.';
+        document.getElementById('card-counter').innerText = '0 cards';
+        return;
+      }
+      const c = state.flashcards[currentCardIdx % state.flashcards.length];
+      const s = state.subjects.find(sub => sub.id === c.subjectId) || { name: 'Exemplo / Geral' };
+      document.getElementById('card-subject-tag').innerText = s.name;
+      document.getElementById('card-front-text').innerText = c.front;
+      document.getElementById('card-back-text').innerText = c.back;
+      document.getElementById('card-counter').innerText = `Card ${(currentCardIdx % state.flashcards.length) + 1} de ${state.flashcards.length}`;
+    }
+
+    function flipCard() {
+      if (!state.flashcards.length) return;
+      cardFlipped = !cardFlipped;
+      document.getElementById('card-inner').classList.toggle('card-flipped', cardFlipped);
+    }
+
+    function answerCard() {
+      addXP(5);
+      currentCardIdx = (currentCardIdx + 1) % state.flashcards.length;
+      setupFlashcards();
+    }
+
+    function openCardModal() {
+      const sel = document.getElementById('input-card-subject');
+      if (state.subjects.length === 0) {
+        sel.innerHTML = '<option value="demo">Geral / Exemplo</option>';
+      } else {
+        sel.innerHTML = state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      }
+      document.getElementById('modal-card').showModal();
+    }
+
+    function createFlashcard(e) {
+      const subjectId = document.getElementById('input-card-subject').value;
+      const front = document.getElementById('input-card-front').value;
+      const back = document.getElementById('input-card-back').value;
+      state.flashcards.push({ id: 'fc_' + Date.now(), subjectId, front, back });
+      saveState();
+      setupFlashcards();
+      document.getElementById('modal-card').close();
+      document.getElementById('input-card-front').value = '';
+      document.getElementById('input-card-back').value = '';
+    }
+
+    // --- NAVEGAÇÃO ENTRE ABAS ---
+    function switchTab(tabId) {
+      ['dashboard', 'cycle', 'errors', 'reviews', 'session', 'timer', 'flashcards'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`btn-${t}`);
+        if (btn) btn.className = 'nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-100 hover:bg-tactical-700';
+      });
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      if (activeBtn) activeBtn.className = 'nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-brand-600 text-tactical-900';
+
+      if (tabId === 'dashboard') { renderDashboard(); updateCharts(); }
+      if (tabId === 'cycle') renderCycleView();
+      if (tabId === 'errors') renderErrors();
+      if (tabId === 'reviews') renderReviews();
+      if (tabId === 'session') renderSessions();
+      if (tabId === 'flashcards') setupFlashcards();
+    }
+
+    // --- GAMIFICAÇÃO & SOM ---
+    function addXP(a) {
+      state.user.xp += a;
+      updateLevelUI();
+      saveState();
+    }
+    function updateLevelUI() {
+      const xp = state.user.xp;
+      const lvl = Math.floor(xp / 100) + 1;
+      const prog = xp % 100;
+      document.getElementById('user-level').innerText = `Nível ${lvl}`;
+      document.getElementById('streak-count').innerText = state.user.streak;
+      document.getElementById('xp-current').innerText = `${prog} XP`;
+      document.getElementById('xp-next').innerText = '100 XP';
+      document.getElementById('xp-progress-bar').style.width = `${prog}%`;
+    }
+    function checkStreak() {
+      const today = new Date().toISOString().split('T')[0];
+      if (!state.user.lastStudyDate) state.user.lastStudyDate = today;
+      else if (state.user.lastStudyDate !== today) {
+        const diff = Math.round((new Date(today) - new Date(state.user.lastStudyDate)) / (1000 * 60 * 60 * 24));
+        if (diff === 1) state.user.streak += 1;
+        else if (diff > 1) state.user.streak = 1;
+        state.user.lastStudyDate = today;
+      }
+    }
+    function playBeep(freq, d) {
+      try {
+        const a = new (window.AudioContext || window.webkitAudioContext)();
+        const o = a.createOscillator(), g = a.createGain();
+        o.connect(g); g.connect(a.destination);
+        o.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, a.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + d);
+        o.start(); o.stop(a.currentTime + d);
+      } catch(e) {}
+    }
+
+    // --- BACKUP ---
+    function exportData() {
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", str);
+      a.setAttribute("download", `eu_me_verei_fardado_backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    function importData(e) {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = (ev) => {
+        try {
+          state = JSON.parse(ev.target.result);
+          saveState();
+          initApp();
+          alert('Backup restaurado com sucesso!');
+        } catch(err) { alert('Arquivo de backup inválido.'); }
+      };
+      r.readAsText(f);
+    }
+
+    function initApp() {
+      initTheme();
+      loadState();
+      renderDashboard();
+      renderCycleView();
+      renderErrors();
+      renderReviews();
+      renderSessions();
+      setupFlashcards();
+      updateTimerDisplay();
+      updateCharts();
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>
